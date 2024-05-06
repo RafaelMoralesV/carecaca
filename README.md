@@ -1,3 +1,20 @@
+## Setting up.
+
+El proyecto sigue la arquitectura Circo-Payaso (Circus-Clown Architecture,
+tambien llamada Server-Client Architecture). Para representarlo, se formo
+este proyecto como un Workspace de Cargo. Para ejecutar cada parte del
+proyecto, puedes usar los siguientes comandos:
+
+```shell
+cargo run -p circus
+
+cargo run -p clown
+```
+
+En general cada comando de cargo, como `cargo run`, `cargo build`, `cargo test`
+y `cargo add` (para agregar dependencias) con la bandera `-p {paquete}`, cosa
+de trabajar ambos proyectos al mismo tiempo, pero de manera organizada.
+
 ## Instrucciones de Juego
 
 Cada jugador tiene 3 cartas en la mano, tres cartas en la mesa boca abajo, y
