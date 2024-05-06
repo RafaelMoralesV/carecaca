@@ -1,3 +1,8 @@
+use std::{
+    io::{BufRead, BufReader, Write},
+    net::TcpListener,
+};
+
 use clap::Parser;
 
 #[derive(Parser, Debug)]
@@ -10,9 +15,38 @@ struct Cli {
     port: u16,
 }
 
-fn main() {
-    let args = Cli::parse();
+fn main() -> std::io::Result<()> {
+    let Cli { host, port } = Cli::parse();
 
-    println!("Hello from Circus!");
-    println!("Args: {args:?}");
+    let addr = format!("{host}:{port}");
+    let listener = TcpListener::bind(&addr).expect("No se pudo bindear el address especificado.");
+
+    println!("Listening on: {}", addr);
+
+    // accept connections and process them serially
+    for stream in listener.incoming() {
+        let mut stream = stream.unwrap();
+        let peer_addr = stream.peer_addr().unwrap();
+        println!("Connected to stream on {:?}", peer_addr);
+
+        let mut buffer = String::new();
+        let mut reader = BufReader::new(stream.try_clone().unwrap());
+        stream
+            .write(
+                b"Welcome. Please input your name. When you are ready to disconnect, type quit.\n",
+            )
+            .unwrap();
+        stream.flush().unwrap();
+        while reader.read_line(&mut buffer).unwrap() > 0 {
+            if buffer.eq("quit\n") {
+                println!("--- Client {:?} disconnected ---", peer_addr);
+                break;
+            }
+
+            println!("{:?}: {}", peer_addr, buffer);
+            buffer.clear();
+        }
+    }
+
+    Ok(())
 }
