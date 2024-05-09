@@ -1,6 +1,6 @@
 use std::{
     io::{BufRead, BufReader, Write},
-    net::TcpListener,
+    net::{TcpListener, TcpStream},
 };
 
 use clap::Parser;
@@ -25,28 +25,37 @@ fn main() -> std::io::Result<()> {
 
     // accept connections and process them serially
     for stream in listener.incoming() {
-        let mut stream = stream.unwrap();
-        let peer_addr = stream.peer_addr().unwrap();
-        println!("Connected to stream on {:?}", peer_addr);
-
-        let mut buffer = String::new();
-        let mut reader = BufReader::new(stream.try_clone().unwrap());
-        stream
-            .write(
-                b"Welcome. Please input your name. When you are ready to disconnect, type quit.\n",
-            )
-            .unwrap();
-        stream.flush().unwrap();
-        while reader.read_line(&mut buffer).unwrap() > 0 {
-            if buffer.eq("quit\n") {
-                println!("--- Client {:?} disconnected ---", peer_addr);
-                break;
+        if let Ok(stream) = stream {
+            if let Err(e) = handle_stream(stream) {
+                println!("Error en el stream: {}", e);
             }
-
-            println!("{:?}: {}", peer_addr, buffer);
-            buffer.clear();
+        } else {
+            println!("Error al aceptar la conexión");
         }
     }
 
+    Ok(())
+}
+
+//Used to handle incoming messages from the clowns (pun intended)
+fn handle_stream(mut stream: TcpStream) -> std::io::Result<()> {
+    let peer_addr = stream.peer_addr()?;
+    println!("Connected to stream on {:?}", peer_addr);
+
+    let mut buffer = String::new();
+    let mut reader = BufReader::new(stream.try_clone()?);
+    stream.write(
+        b"Welcome. Please input your name. When you are ready to disconnect, type quit.\n",
+    )?;
+    stream.flush()?;
+    while reader.read_line(&mut buffer)? > 0 {
+        if buffer.eq("quit\n") {
+            println!("--- Client {:?} disconnected ---", peer_addr);
+            break;
+        }
+
+        println!("{:?}: {}", peer_addr, buffer);
+        buffer.clear();
+    }
     Ok(())
 }
