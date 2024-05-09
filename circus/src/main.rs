@@ -26,10 +26,9 @@ fn main() -> std::io::Result<()> {
     // accept connections and process them serially
     for stream in listener.incoming() {
         if let Ok(stream) = stream {
-            match handle_stream(stream) {
-                Ok(_) => {}
-                Err(e) => println!("Error en el stream: {}", e),
-            };
+            if let Err(e) = handle_stream(stream) {
+                println!("Error en el stream: {}", e);
+            }
         } else {
             println!("Error al aceptar la conexión");
         }
