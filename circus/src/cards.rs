@@ -1,6 +1,9 @@
 use std::{error, fmt};
 
-#[derive(Debug)]
+use itertools::iproduct;
+use strum::{EnumIter, IntoEnumIterator};
+
+#[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq)]
 pub enum CardType {
     Ace,
     Numeric(u8),
@@ -10,13 +13,22 @@ pub enum CardType {
     Joker,
 }
 
-#[derive(Debug)]
+impl Into<CardColor> for CardSuits {
+    fn into(self) -> CardColor {
+        match self {
+            CardSuits::Clubs | CardSuits::Spades => CardColor::Black,
+            CardSuits::Diamonds | CardSuits::Hearts => CardColor::Red,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
 pub enum CardColor {
     Red,
     Black,
 }
 
-#[derive(Debug)]
+#[derive(Debug, EnumIter, Clone, Copy)]
 pub enum CardSuits {
     Clubs,
     Diamonds,
@@ -26,9 +38,9 @@ pub enum CardSuits {
 
 #[derive(Debug)]
 pub struct Card {
-    card_type: CardType,
-    color: CardColor,
-    suit: CardSuits,
+    pub card_type: CardType,
+    pub color: CardColor,
+    pub suit: CardSuits,
 }
 
 #[derive(Debug)]
@@ -63,6 +75,33 @@ impl Card {
             }),
         }
     }
+}
+
+pub fn generate_deck() -> Vec<Card> {
+    let mut deck: Vec<Card> = Vec::with_capacity(54);
+
+    for (card_type, suit) in iproduct!(CardType::iter(), CardSuits::iter()) {
+        match card_type {
+            CardType::Numeric(_) => (2..11).for_each(|value| {
+                deck.push(Card::new(CardType::Numeric(value), suit).unwrap());
+            }),
+            CardType::Joker => {
+                let joker_doesnt_exist = deck
+                    .iter()
+                    .find(|card| card.card_type == CardType::Joker && card.color == suit.into())
+                    .is_none();
+
+                if joker_doesnt_exist {
+                    deck.push(Card::new(card_type, suit).unwrap());
+                }
+            }
+            _ => {
+                deck.push(Card::new(card_type, suit).unwrap());
+            }
+        }
+    }
+
+    deck
 }
 
 #[cfg(test)]
@@ -102,6 +141,16 @@ mod tests {
 
             assert!(Card::new(CardType::Numeric(value as u8), suit).is_err());
         }
+    }
+
+    #[test]
+    /// Deck is generated as expected.
+    fn test_initial_deck_is_valid() {
+        let deck = generate_deck();
+
+        assert_eq!(deck.len(), 54);
+        assert_eq!(deck.capacity(), 54);
+        // TODO: Agregar verificar que las cartas sean únicas.
     }
 
     /// A partir de un numero, genera un `CardSuit`.

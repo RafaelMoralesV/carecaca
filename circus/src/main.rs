@@ -5,6 +5,7 @@ use std::{
 
 use clap::Parser;
 
+use crate::cards::generate_deck;
 mod cards;
 
 #[derive(Parser, Debug)]
@@ -24,6 +25,10 @@ fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind(&addr).expect("No se pudo bindear el address especificado.");
 
     println!("Listening on: {}", addr);
+
+    let deck = generate_deck();
+
+    println!("Deck size: {}", deck.len());
 
     // accept connections and process them serially
     for stream in listener.incoming() {
