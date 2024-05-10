@@ -5,6 +5,8 @@ use std::{
 
 use clap::Parser;
 
+mod cards;
+
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
