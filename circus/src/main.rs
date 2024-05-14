@@ -5,9 +5,6 @@ use std::{
 
 use clap::Parser;
 
-use crate::cards::generate_deck;
-mod cards;
-
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
@@ -26,7 +23,7 @@ fn main() -> std::io::Result<()> {
 
     println!("Listening on: {}", addr);
 
-    let deck = generate_deck();
+    let deck = shitface::generate_deck();
 
     println!("Deck size: {}", deck.len());
 

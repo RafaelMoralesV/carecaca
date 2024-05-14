@@ -52,6 +52,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.83"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25bdb32cbbdce2b519a9cd7df3a678443100e265d5e25ca763b7572a5104f5f3"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -62,9 +68,7 @@ name = "circus"
 version = "0.1.0"
 dependencies = [
  "clap",
- "itertools",
- "rand",
- "strum",
+ "shitface",
 ]
 
 [[package]]
@@ -226,6 +230,16 @@ name = "rustversion"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80af6f9131f277a45a3fba6ce8e2258037bb0477a67e610d3c1fe046ab31de47"
+
+[[package]]
+name = "shitface"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "itertools",
+ "rand",
+ "strum",
+]
 
 [[package]]
 name = "strsim"
