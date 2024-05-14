@@ -18,6 +18,4 @@ jobs:
       - name: Build
         run: cargo build --verbose
       - name: Run circus tests
-        run: cargo test -p circus --verbose
-      - name: Run clowns tests
-        run: cargo test -p clown --verbose
+        run: cargo test --verbose
