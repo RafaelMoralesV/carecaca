@@ -62,3 +62,111 @@ impl Distribution<CardType> for Standard {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use rand::random;
+
+    use super::*;
+
+    #[test]
+    fn test_joker_is_the_highest() {
+        let joker = CardType::Joker;
+
+        for _ in 0..100 {
+            let other: CardType = random();
+
+            if other == CardType::Joker {
+                assert_eq!(joker, other);
+            } else {
+                assert!(joker > other, "Joker is not greater than {other:?}")
+            }
+        }
+    }
+
+    #[test]
+    fn test_ace_is_the_second_highest() {
+        let ace = CardType::Ace;
+
+        for _ in 0..100 {
+            let other: CardType = random();
+
+            match other {
+                CardType::Joker => assert!(other > ace, "Ace isn't Less than Joker."),
+                CardType::Ace => assert_eq!(other, ace, "Ace isn't equal to itself."),
+                _ => assert!(ace > other, "Ace isn't greater than {other:?}."),
+            }
+        }
+    }
+
+    #[test]
+    fn test_king_ordering() {
+        let king = CardType::King;
+
+        for _ in 0..100 {
+            let other: CardType = random();
+
+            use CardType::*;
+            match other {
+                Joker | Ace => assert!(other > king, "King isn't less than {other:?}"),
+                King => assert_eq!(other, king, "King isn't equal to itself."),
+                _ => assert!(king > other, "King isn't greater than {other:?}."),
+            }
+        }
+    }
+
+    #[test]
+    fn test_queen_ordering() {
+        let queen = CardType::Queen;
+
+        for _ in 0..100 {
+            let other: CardType = random();
+
+            use CardType::*;
+            match other {
+                Joker | Ace | King => assert!(other > queen, "Queen isn't less than {other:?}"),
+                Queen => assert_eq!(other, queen, "Queen isn't equal to itself."),
+                _ => assert!(queen > other, "Queen isn't greater than {other:?}."),
+            }
+        }
+    }
+
+    #[test]
+    fn test_jack_ordering() {
+        let jack = CardType::Jack;
+
+        for _ in 0..100 {
+            let other: CardType = random();
+
+            use CardType::*;
+            match other {
+                Numeric(_) => assert!(other < jack, "Jack isn't Greater than {other:?}"),
+                Jack => assert_eq!(other, jack, "Jack isn't equal to itself."),
+                _ => assert!(jack < other, "Jack isn't Less than {other:?}."),
+            }
+        }
+    }
+
+    #[test]
+    fn test_numeric_ordering() {
+        let inner = random::<u8>() % 10 + 1;
+        let numeric = CardType::Numeric(inner.clone());
+
+        for _ in 0..100 {
+            let other: CardType = random();
+
+            use CardType::*;
+            match other {
+                Numeric(value) if inner > value => {
+                    assert!(other < numeric, "{numeric:?} isn't Greater than {other:?}")
+                }
+                Numeric(value) if inner == value => {
+                    assert!(other == numeric, "{numeric:?} isn't Equal than {other:?}")
+                }
+                Numeric(value) if inner < value => {
+                    assert!(other > numeric, "{numeric:?} isn't Less than {other:?}")
+                }
+                _ => assert!(numeric < other, "{numeric:?} isn't Less than {other:?}."),
+            }
+        }
+    }
+}
