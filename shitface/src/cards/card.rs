@@ -1,7 +1,7 @@
 use super::{card_color::CardColor, card_suits::CardSuits, card_type::CardType};
 use anyhow::{anyhow, Result};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Card {
     pub card_type: CardType,
     pub color: CardColor,

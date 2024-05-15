@@ -1,6 +1,6 @@
 use super::card_suits::CardSuits;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum CardColor {
     Red,
     Black,
