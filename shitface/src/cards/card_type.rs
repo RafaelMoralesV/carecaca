@@ -48,3 +48,17 @@ impl PartialOrd for CardType {
         }
     }
 }
+
+impl Distribution<CardType> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CardType {
+        match rng.gen_range(0..=5) {
+            0 => CardType::Ace,
+            1 => CardType::Numeric(rng.gen_range(2..=10)),
+            2 => CardType::Jack,
+            3 => CardType::Queen,
+            4 => CardType::King,
+            _ => CardType::Joker,
+        }
+    }
+}
+
