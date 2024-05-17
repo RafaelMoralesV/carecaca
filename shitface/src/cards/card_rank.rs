@@ -4,8 +4,8 @@ use rand::{
 };
 use strum::EnumIter;
 
-#[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq, Ord)]
-pub enum CardType {
+#[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq)]
+pub enum CardRank {
     Ace,
     Numeric(u8),
     Jack,
@@ -14,50 +14,56 @@ pub enum CardType {
     Joker,
 }
 
-impl PartialOrd for CardType {
+impl PartialOrd for CardRank {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        use std::cmp::Ordering;
+        Some(self.cmp(other))
+    }
+}
 
-        if self.eq(&other) {
-            return Some(Ordering::Equal);
+impl Ord for CardRank {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        use std::cmp::Ordering;
+        use CardRank::{Ace, Jack, Joker, King, Numeric, Queen};
+
+        if self.eq(other) {
+            return Ordering::Equal;
         }
 
-        use CardType::*;
         match self {
             Ace => match other {
-                Joker => Some(Ordering::Less),
-                _ => Some(Ordering::Greater),
+                Joker => Ordering::Less,
+                _ => Ordering::Greater,
             },
             Numeric(value) => match other {
-                Numeric(other_value) => value.partial_cmp(&other_value),
-                _ => Some(Ordering::Less),
+                Numeric(other_value) => value.cmp(other_value),
+                _ => Ordering::Less,
             },
             Jack => match other {
-                Numeric(_) => Some(Ordering::Greater),
-                _ => Some(Ordering::Less),
+                Numeric(_) => Ordering::Greater,
+                _ => Ordering::Less,
             },
             Queen => match other {
-                Ace | King | Joker => Some(Ordering::Less),
-                _ => Some(Ordering::Greater),
+                Ace | King | Joker => Ordering::Less,
+                _ => Ordering::Greater,
             },
             King => match other {
-                Ace | Joker => Some(Ordering::Less),
-                _ => Some(Ordering::Greater),
+                Ace | Joker => Ordering::Less,
+                _ => Ordering::Greater,
             },
-            Joker => Some(Ordering::Greater),
+            Joker => Ordering::Greater,
         }
     }
 }
 
-impl Distribution<CardType> for Standard {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CardType {
+impl Distribution<CardRank> for Standard {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CardRank {
         match rng.gen_range(0..=5) {
-            0 => CardType::Ace,
-            1 => CardType::Numeric(rng.gen_range(2..=10)),
-            2 => CardType::Jack,
-            3 => CardType::Queen,
-            4 => CardType::King,
-            _ => CardType::Joker,
+            0 => CardRank::Ace,
+            1 => CardRank::Numeric(rng.gen_range(2..=10)),
+            2 => CardRank::Jack,
+            3 => CardRank::Queen,
+            4 => CardRank::King,
+            _ => CardRank::Joker,
         }
     }
 }
@@ -70,12 +76,12 @@ mod tests {
 
     #[test]
     fn test_joker_is_the_highest() {
-        let joker = CardType::Joker;
+        let joker = CardRank::Joker;
 
         for _ in 0..100 {
-            let other: CardType = random();
+            let other: CardRank = random();
 
-            if other == CardType::Joker {
+            if other == CardRank::Joker {
                 assert_eq!(joker, other);
             } else {
                 assert!(joker > other, "Joker is not greater than {other:?}")
@@ -85,14 +91,14 @@ mod tests {
 
     #[test]
     fn test_ace_is_the_second_highest() {
-        let ace = CardType::Ace;
+        let ace = CardRank::Ace;
 
         for _ in 0..100 {
-            let other: CardType = random();
+            let other: CardRank = random();
 
             match other {
-                CardType::Joker => assert!(other > ace, "Ace isn't Less than Joker."),
-                CardType::Ace => assert_eq!(other, ace, "Ace isn't equal to itself."),
+                CardRank::Joker => assert!(other > ace, "Ace isn't Less than Joker."),
+                CardRank::Ace => assert_eq!(other, ace, "Ace isn't equal to itself."),
                 _ => assert!(ace > other, "Ace isn't greater than {other:?}."),
             }
         }
@@ -100,12 +106,12 @@ mod tests {
 
     #[test]
     fn test_king_ordering() {
-        let king = CardType::King;
+        let king = CardRank::King;
 
         for _ in 0..100 {
-            let other: CardType = random();
+            let other: CardRank = random();
 
-            use CardType::*;
+            use CardRank::*;
             match other {
                 Joker | Ace => assert!(other > king, "King isn't less than {other:?}"),
                 King => assert_eq!(other, king, "King isn't equal to itself."),
@@ -116,12 +122,12 @@ mod tests {
 
     #[test]
     fn test_queen_ordering() {
-        let queen = CardType::Queen;
+        let queen = CardRank::Queen;
 
         for _ in 0..100 {
-            let other: CardType = random();
+            let other: CardRank = random();
 
-            use CardType::*;
+            use CardRank::*;
             match other {
                 Joker | Ace | King => assert!(other > queen, "Queen isn't less than {other:?}"),
                 Queen => assert_eq!(other, queen, "Queen isn't equal to itself."),
@@ -132,12 +138,12 @@ mod tests {
 
     #[test]
     fn test_jack_ordering() {
-        let jack = CardType::Jack;
+        let jack = CardRank::Jack;
 
         for _ in 0..100 {
-            let other: CardType = random();
+            let other: CardRank = random();
 
-            use CardType::*;
+            use CardRank::*;
             match other {
                 Numeric(_) => assert!(other < jack, "Jack isn't Greater than {other:?}"),
                 Jack => assert_eq!(other, jack, "Jack isn't equal to itself."),
@@ -149,12 +155,12 @@ mod tests {
     #[test]
     fn test_numeric_ordering() {
         let inner = random::<u8>() % 10 + 1;
-        let numeric = CardType::Numeric(inner.clone());
+        let numeric = CardRank::Numeric(inner);
 
         for _ in 0..100 {
-            let other: CardType = random();
+            let other: CardRank = random();
 
-            use CardType::*;
+            use CardRank::*;
             match other {
                 Numeric(value) if inner > value => {
                     assert!(other < numeric, "{numeric:?} isn't Greater than {other:?}")

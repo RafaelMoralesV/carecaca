@@ -1,21 +1,21 @@
-use super::{card_color::CardColor, card_suits::CardSuits, card_type::CardType};
+use super::{card_color::CardColor, card_rank::CardRank, card_suits::CardSuits};
 use anyhow::{anyhow, Result};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Card {
-    pub card_type: CardType,
+    pub rank: CardRank,
     pub color: CardColor,
     pub suit: CardSuits,
 }
 
 impl Card {
-    pub fn new(card_type: CardType, suit: CardSuits) -> Result<Card> {
+    pub fn new(card_type: CardRank, suit: CardSuits) -> Result<Self> {
         match card_type {
-            CardType::Numeric(value) if value < 2 || value > 10 => {
+            CardRank::Numeric(value) if !(2..=10).contains(&value) => {
                 Err(anyhow!("This card is Invalid"))
             }
-            _ => Ok(Card {
-                card_type,
+            _ => Ok(Self {
+                rank: card_type,
                 color: suit.into(),
                 suit,
             }),
@@ -31,11 +31,11 @@ mod tests {
     #[test]
     /// Se pueden crear las variantes distintas sin problemas.
     fn test_valid_variants() {
-        assert!(Card::new(CardType::Ace, CardSuits::Spades).is_ok());
-        assert!(Card::new(CardType::Jack, CardSuits::Hearts).is_ok());
-        assert!(Card::new(CardType::Queen, CardSuits::Diamonds).is_ok());
-        assert!(Card::new(CardType::King, CardSuits::Clubs).is_ok());
-        assert!(Card::new(CardType::Joker, CardSuits::Spades).is_ok());
+        assert!(Card::new(CardRank::Ace, CardSuits::Spades).is_ok());
+        assert!(Card::new(CardRank::Jack, CardSuits::Hearts).is_ok());
+        assert!(Card::new(CardRank::Queen, CardSuits::Diamonds).is_ok());
+        assert!(Card::new(CardRank::King, CardSuits::Clubs).is_ok());
+        assert!(Card::new(CardRank::Joker, CardSuits::Spades).is_ok());
     }
 
     #[test]
@@ -43,7 +43,7 @@ mod tests {
     fn test_numeric_variants() {
         for number in 2..11 {
             let suit = random_suit(random::<u32>());
-            assert!(Card::new(CardType::Numeric(number), suit).is_ok())
+            assert!(Card::new(CardRank::Numeric(number), suit).is_ok())
         }
     }
 
@@ -59,7 +59,7 @@ mod tests {
             }
 
             assert!(
-                Card::new(CardType::Numeric(value), suit).is_err(),
+                Card::new(CardRank::Numeric(value), suit).is_err(),
                 "The card with numeric value [{value}] should error."
             );
         }
