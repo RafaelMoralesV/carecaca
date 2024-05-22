@@ -1,64 +1,22 @@
-use std::{error, fmt};
-
-#[derive(Debug)]
-pub enum CardType {
-    Ace,
-    Numeric(u8),
-    Jack,
-    Queen,
-    King,
-    Joker,
-}
-
-#[derive(Debug)]
-pub enum CardColor {
-    Red,
-    Black,
-}
-
-#[derive(Debug)]
-pub enum CardSuits {
-    Clubs,
-    Diamonds,
-    Hearts,
-    Spades,
-}
+use super::{card_color::CardColor, card_suits::CardSuits, card_type::CardType};
+use anyhow::{anyhow, Result};
 
 #[derive(Debug)]
 pub struct Card {
-    card_type: CardType,
-    color: CardColor,
-    suit: CardSuits,
+    pub card_type: CardType,
+    pub color: CardColor,
+    pub suit: CardSuits,
 }
-
-#[derive(Debug)]
-struct InvalidCard {}
-
-impl fmt::Display for InvalidCard {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Invalid card value")
-    }
-}
-
-impl error::Error for InvalidCard {}
 
 impl Card {
-    pub fn new(card_type: CardType, suit: CardSuits) -> Result<Card, Box<dyn error::Error>> {
-        let color = match suit {
-            CardSuits::Clubs | CardSuits::Spades => CardColor::Black,
-            CardSuits::Diamonds | CardSuits::Hearts => CardColor::Red,
-        };
-
+    pub fn new(card_type: CardType, suit: CardSuits) -> Result<Card> {
         match card_type {
-            CardType::Numeric(value) if value > 1 && value < 11 => Ok(Card {
-                card_type,
-                color,
-                suit,
-            }),
-            CardType::Numeric(_) => Err(Box::new(InvalidCard {})),
+            CardType::Numeric(value) if value < 2 || value > 10 => {
+                Err(anyhow!("This card is Invalid"))
+            }
             _ => Ok(Card {
                 card_type,
-                color,
+                color: suit.into(),
                 suit,
             }),
         }
@@ -100,7 +58,10 @@ mod tests {
                 continue;
             }
 
-            assert!(Card::new(CardType::Numeric(value as u8), suit).is_err());
+            assert!(
+                Card::new(CardType::Numeric(value), suit).is_err(),
+                "The card with numeric value [{value}] should error."
+            );
         }
     }
 

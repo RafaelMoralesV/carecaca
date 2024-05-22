@@ -5,8 +5,6 @@ use std::{
 
 use clap::Parser;
 
-mod cards;
-
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Cli {
@@ -24,6 +22,10 @@ fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind(&addr).expect("No se pudo bindear el address especificado.");
 
     println!("Listening on: {}", addr);
+
+    let deck = shitface::generate_deck();
+
+    println!("Deck size: {}", deck.len());
 
     // accept connections and process them serially
     for stream in listener.incoming() {
