@@ -1,29 +1,45 @@
-use cards::{card::Card, card_suits::CardSuits, card_type::CardType};
+use cards::{card::Card, card_rank::CardRank, card_suits::CardSuits};
 use itertools::iproduct;
 
 mod cards;
 
+#[must_use]
 pub fn generate_deck() -> Vec<Card> {
+    use strum::IntoEnumIterator;
+
     let mut deck: Vec<Card> = Vec::with_capacity(54);
 
-    use strum::IntoEnumIterator;
-    for (card_type, suit) in iproduct!(CardType::iter(), CardSuits::iter()) {
+    for (card_type, suit) in iproduct!(CardRank::iter(), CardSuits::iter()) {
         match card_type {
-            CardType::Numeric(_) => (2..11).for_each(|value| {
-                deck.push(Card::new(CardType::Numeric(value), suit).unwrap());
+            CardRank::Numeric(_) => (2..11).for_each(|value| {
+                let card = Card::new(CardRank::Numeric(value), suit);
+
+                match card {
+                    Ok(c) => deck.push(c),
+                    Err(_) => unreachable!(),
+                }
             }),
-            CardType::Joker => {
-                let joker_doesnt_exist = deck
+            CardRank::Joker => {
+                let joker_doesnt_exist = !deck
                     .iter()
-                    .find(|card| card.card_type == CardType::Joker && card.color == suit.into())
-                    .is_none();
+                    .any(|card| card.rank == CardRank::Joker && card.color == suit.into());
 
                 if joker_doesnt_exist {
-                    deck.push(Card::new(card_type, suit).unwrap());
+                    let card = Card::new(card_type, suit);
+
+                    match card {
+                        Ok(c) => deck.push(c),
+                        Err(_) => unreachable!(),
+                    }
                 }
             }
             _ => {
-                deck.push(Card::new(card_type, suit).unwrap());
+                let card = Card::new(card_type, suit);
+
+                match card {
+                    Ok(c) => deck.push(c),
+                    Err(_) => unreachable!(),
+                }
             }
         }
     }
@@ -40,8 +56,8 @@ mod tests {
     fn test_initial_deck_is_valid() {
         let deck = generate_deck();
 
-        assert_eq!(deck.len(), 54);
-        assert_eq!(deck.capacity(), 54);
+        assert_eq!(deck.len(), 54, "Deck length isn't 54, somehow.");
+        assert_eq!(deck.capacity(), 54, "Deck capacity grew somehow.");
         // TODO: Agregar verificar que las cartas sean únicas.
     }
 }

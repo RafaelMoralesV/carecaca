@@ -5,5 +5,9 @@ pkgs.mkShell {
         gcc
         gnumake
         cargo
+        rustc
+        rustfmt
+        clippy
+        bacon
     ];
 }
