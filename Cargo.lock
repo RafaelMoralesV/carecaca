@@ -226,6 +226,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rand_seeder"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf2890aaef0aa82719a50e808de264f9484b74b442e1a3a0e5ee38243ac40bdb"
+dependencies = [
+ "rand_core",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +247,7 @@ dependencies = [
  "anyhow",
  "itertools",
  "rand",
+ "rand_seeder",
  "strum",
 ]
 

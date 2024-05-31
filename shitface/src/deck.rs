@@ -1,8 +1,7 @@
 use std::collections::VecDeque;
 
 use itertools::iproduct;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
+use rand::prelude::*;
 
 use crate::cards::{card::Card, card_rank::CardRank, card_suits::CardSuits};
 
@@ -52,9 +51,12 @@ impl Deck {
         Self(deck)
     }
 
-    pub fn shuffled_new() -> Self {
+    pub fn shuffled_new<R>(rng: &mut R) -> Self
+    where
+        R: Rng + ?Sized,
+    {
         let mut deck = Self::new();
-        deck.shuffle();
+        deck.shuffle(rng);
 
         deck
     }
@@ -63,8 +65,11 @@ impl Deck {
         self.0.len()
     }
 
-    pub fn shuffle(&mut self) {
-        self.0.make_contiguous().shuffle(&mut thread_rng());
+    pub fn shuffle<R>(&mut self, rng: &mut R)
+    where
+        R: Rng + ?Sized,
+    {
+        self.0.make_contiguous().shuffle(rng);
     }
 
     pub fn draw(&mut self) -> Option<Card> {
@@ -80,6 +85,8 @@ impl Default for Deck {
 
 #[cfg(test)]
 mod tests {
+    use rand_seeder::{Seeder, SipRng};
+
     use crate::deck::Deck;
 
     #[test]
@@ -88,6 +95,41 @@ mod tests {
         let deck = Deck::new();
 
         assert_eq!(deck.cards_left(), 54, "Deck length isn't 54, somehow.");
-        // TODO: Agregar verificar que las cartas sean únicas.
+    }
+
+    #[test]
+    fn test_deck_has_no_repeated_cards() {
+        let mut deck = Deck::new().0;
+
+        // Orderno el mazo.
+        deck.make_contiguous().sort();
+
+        // Convierto de VecDeque a Vec
+        let mut deck: Vec<_> = deck.into();
+
+        // Quito duplicados.
+        deck.dedup();
+
+        assert_eq!(deck.len(), 54, "Deck had duplicate values");
+    }
+
+    #[test]
+    fn test_shuffling_works() {
+        let mut rng: SipRng = Seeder::from("Barajale barajale wn oh").make_rng();
+
+        let mut shuffled_deck = Deck::shuffled_new(&mut rng);
+        let mut unshuffled_deck = Deck::new();
+
+        shuffled_deck.shuffle(&mut rng);
+
+        // Normalmente esto podria ser peligroso, pero con el seeder declarado, se que estos dos
+        // mazos nunca son iguales.
+        while shuffled_deck.cards_left() > 0 {
+            assert_ne!(
+                shuffled_deck.draw(),
+                unshuffled_deck.draw(),
+                "La mezcla del mazo fallo"
+            );
+        }
     }
 }
