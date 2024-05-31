@@ -1,6 +1,8 @@
 use std::collections::VecDeque;
 
 use itertools::iproduct;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 use crate::cards::{card::Card, card_rank::CardRank, card_suits::CardSuits};
 
@@ -50,8 +52,23 @@ impl Deck {
         Self(deck)
     }
 
+    pub fn shuffled_new() -> Self {
+        let mut deck = Self::new();
+        deck.shuffle();
+
+        deck
+    }
+
     pub fn cards_left(&self) -> usize {
         self.0.len()
+    }
+
+    pub fn shuffle(&mut self) {
+        self.0.make_contiguous().shuffle(&mut thread_rng());
+    }
+
+    pub fn draw(&mut self) -> Option<Card> {
+        self.0.pop_back()
     }
 }
 
