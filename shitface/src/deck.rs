@@ -18,9 +18,8 @@ impl Deck {
                 CardRank::Numeric(_) => (2..11).for_each(|value| {
                     let card = Card::new(CardRank::Numeric(value), suit);
 
-                    match card {
-                        Ok(c) => deck.push_back(c),
-                        Err(_) => unreachable!(),
+                    if let Ok(c) = card {
+                        deck.push_back(c)
                     }
                 }),
                 CardRank::Joker => {
@@ -31,18 +30,16 @@ impl Deck {
                     if joker_doesnt_exist {
                         let card = Card::new(card_type, suit);
 
-                        match card {
-                            Ok(c) => deck.push_back(c),
-                            Err(_) => unreachable!(),
+                        if let Ok(c) = card {
+                            deck.push_back(c)
                         }
                     }
                 }
                 _ => {
                     let card = Card::new(card_type, suit);
 
-                    match card {
-                        Ok(c) => deck.push_back(c),
-                        Err(_) => unreachable!(),
+                    if let Ok(c) = card {
+                        deck.push_back(c)
                     }
                 }
             }
