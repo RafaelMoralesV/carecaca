@@ -29,9 +29,7 @@ fn main() -> ExitCode {
         |listener| {
             println!("Listening on: {addr}");
 
-            let deck = shitface::generate_deck();
-
-            println!("Deck size: {}", deck.len());
+            let _deck = shitface::deck::Deck::new();
 
             // accept connections and process them serially
             for stream in listener.incoming() {
