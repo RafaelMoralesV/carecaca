@@ -1,10 +1,10 @@
 use super::{card_color::CardColor, card_rank::CardRank, card_suits::CardSuits};
 use anyhow::{anyhow, Result};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 /// Represents a playing card.
 ///
 /// A card must have a Rank and a Suit. The color of the card is derived from it.
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Card {
     pub rank: CardRank,
     pub color: CardColor,

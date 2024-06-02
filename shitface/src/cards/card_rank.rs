@@ -4,6 +4,7 @@ use rand::{
 };
 use strum::EnumIter;
 
+/// Represents the rank of a card.
 #[derive(Debug, EnumIter, Clone, Copy, PartialEq, Eq)]
 pub enum CardRank {
     Ace,
@@ -15,12 +16,30 @@ pub enum CardRank {
 }
 
 impl PartialOrd for CardRank {
+    /// Compares two card ranks.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The other card rank to compare with.
+    ///
+    /// # Returns
+    ///
+    /// An `Ordering` indicating the relative order of the ranks.
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for CardRank {
+    /// Compares two card ranks.
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - The other card rank to compare with.
+    ///
+    /// # Returns
+    ///
+    /// An `Ordering` indicating the relative order of the ranks.
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         use std::cmp::Ordering;
         use CardRank::{Ace, Jack, Joker, King, Numeric, Queen};
@@ -56,6 +75,15 @@ impl Ord for CardRank {
 }
 
 impl Distribution<CardRank> for Standard {
+    /// Generates a random card rank.
+    ///
+    /// # Arguments
+    ///
+    /// * `rng` - The random number generator.
+    ///
+    /// # Returns
+    ///
+    /// A randomly generated card rank.
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> CardRank {
         match rng.gen_range(0..=5) {
             0 => CardRank::Ace,
