@@ -2,6 +2,9 @@ use super::{card_color::CardColor, card_rank::CardRank, card_suits::CardSuits};
 use anyhow::{anyhow, Result};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+/// Represents a playing card.
+///
+/// A card must have a Rank and a Suit. The color of the card is derived from it.
 pub struct Card {
     pub rank: CardRank,
     pub color: CardColor,
@@ -9,13 +12,27 @@ pub struct Card {
 }
 
 impl Card {
-    pub fn new(card_type: CardRank, suit: CardSuits) -> Result<Self> {
-        match card_type {
+    /// Constructs a new card with the given rank and suit.
+    ///
+    /// # Arguments
+    ///
+    /// * `rank` - The rank of the card.
+    /// * `suit` - The suit of the card.
+    ///
+    /// # Returns
+    ///
+    /// A Result containing the constructed Card if successful, otherwise an error.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the card rank is invalid.
+    pub fn new(rank: CardRank, suit: CardSuits) -> Result<Self> {
+        match rank {
             CardRank::Numeric(value) if !(2..=10).contains(&value) => {
                 Err(anyhow!("This card is Invalid"))
             }
             _ => Ok(Self {
-                rank: card_type,
+                rank,
                 color: suit.into(),
                 suit,
             }),
@@ -26,7 +43,8 @@ impl Card {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rand::random;
+    use rand::{random, Rng};
+    use rand_seeder::{Seeder, SipRng};
 
     #[test]
     /// Se pueden crear las variantes distintas sin problemas.
@@ -50,8 +68,9 @@ mod tests {
     #[test]
     /// No se pueden crear variantes de valor fuera del rango.
     fn test_invalid_numeric_variants() {
+        let mut rng: SipRng = Seeder::from("Ni buena suerte en el juego (8)").make_rng();
         for i in 0..100 {
-            let value: u8 = random();
+            let value: u8 = rng.gen();
             let suit = random_suit(i);
 
             if (2..11).contains(&value) {
