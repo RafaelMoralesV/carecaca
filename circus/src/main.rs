@@ -61,6 +61,7 @@ fn handle_stream(mut stream: TcpStream) -> std::io::Result<()> {
     while reader.read_line(&mut buffer)? > 0 {
         if buffer.eq("quit\n") {
             println!("--- Client {peer_addr:?} disconnected ---");
+            stream.write_all(b"Good bye!")?;
             break;
         }
 
