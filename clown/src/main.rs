@@ -3,7 +3,12 @@ use std::{
     net::TcpStream,
 };
 
+use bevy::prelude::*;
+
 fn main() {
+    App::new().insert_resource(ClearColor(Color::BLACK)).run();
+    return;
+
     let addr = "localhost:3001";
 
     if let Ok(mut stream) = TcpStream::connect(addr) {
