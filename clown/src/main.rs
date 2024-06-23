@@ -6,8 +6,10 @@ use std::{
 use bevy::prelude::*;
 
 fn main() {
-    App::new().insert_resource(ClearColor(Color::BLACK)).run();
-    return;
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(Color::BLACK))
+        .run();
 
     let addr = "localhost:3001";
 
