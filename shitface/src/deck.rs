@@ -6,7 +6,7 @@
 
 use std::collections::VecDeque;
 
-use itertools::iproduct;
+use itertools::Itertools;
 use rand::prelude::*;
 
 use crate::cards::{card::Card, card_rank::CardRank, card_suits::CardSuits};
@@ -44,39 +44,10 @@ impl Deck {
     pub fn new() -> Self {
         use strum::IntoEnumIterator;
 
-        let mut deck = VecDeque::with_capacity(54);
-
-        for (card_type, suit) in iproduct!(CardRank::iter(), CardSuits::iter()) {
-            match card_type {
-                CardRank::Numeric(_) => (2..11).for_each(|value| {
-                    let card = Card::new(CardRank::Numeric(value), suit);
-
-                    if let Ok(c) = card {
-                        deck.push_back(c)
-                    }
-                }),
-                CardRank::Joker => {
-                    let joker_doesnt_exist = !deck
-                        .iter()
-                        .any(|card| card.rank == CardRank::Joker && card.color == suit.into());
-
-                    if joker_doesnt_exist {
-                        let card = Card::new(card_type, suit);
-
-                        if let Ok(c) = card {
-                            deck.push_back(c)
-                        }
-                    }
-                }
-                _ => {
-                    let card = Card::new(card_type, suit);
-
-                    if let Ok(c) = card {
-                        deck.push_back(c)
-                    }
-                }
-            }
-        }
+        let deck = CardRank::iter()
+            .cartesian_product(CardSuits::iter())
+            .map(|(rank, suit)| Card::new(rank, suit))
+            .collect();
 
         Self(deck)
     }
