@@ -1,11 +1,31 @@
 { pkgs, lib, config, inputs, ... }:
 
 {
-  # https://devenv.sh/basics/
-  env.GREET = "devenv";
+  env = {
+    LD_LIBRARY_PATH = lib.makeLibraryPath config.packages;
+    NIX_ENFORCE_PURITY = 0;
+    CARGO_TARGET_DIR = "target/project";
+  };
 
   # https://devenv.sh/packages/
-  packages = with pkgs; [ git cargo-watch ];
+  packages = with pkgs; [
+    git
+    cargo-watch
+    udev
+    alsa-lib
+    vulkan-loader
+    mold
+
+    # To use the x11 feature
+    xorg.libX11
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXrandr
+
+    # To use the wayland feature
+    libxkbcommon
+    wayland
+  ];
 
   # https://devenv.sh/languages/
   languages.rust.enable = true;
@@ -27,6 +47,7 @@
     echo "Running tests"
     cargo test -p clown
     cargo test -p circus
+    cargo test -p shitface
   '';
 
   # https://devenv.sh/git-hooks/
